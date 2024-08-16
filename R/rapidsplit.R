@@ -22,7 +22,6 @@
 #' defined in \code{aggvar}; can be \code{"means"}, \code{"medians"}, 
 #' or a custom function (not a function name). 
 #' This custom function must take a numeric vector and output a single value.
-#' Only if \code{aggfunc} is set to \code{"custom"}.
 #' @param errorhandling A list with 4 named items, to be used to replace error trials
 #'  with the block mean of correct responses plus a fixed penalty, as in the IAT D-score.
 #'  The 4 items are \code{type} which can be set to \code{"none"} for no error replacement, 
@@ -52,7 +51,7 @@
 #' 
 #' @note
 #' * This function can use a lot of memory in one go. 
-#' If you're computing the reliability of a large dataset or you have little RAM, 
+#' If you are computing the reliability of a large dataset or you have little RAM, 
 #' it may pay off to use the sequential version of this function instead: 
 #' [rapidsplit.chunks()]
 #' 
@@ -70,8 +69,9 @@
 #' * (Dividing the resulting (sub)score by the SD of the data used to compute that (sub)score)
 #' * (Averaging subscores together into a single score per person)
 #' * Correlating scores from one half with scores from the other half
-#' * Applying the Spearman-Brown correction using [spearmanBrown()]
 #' * Computing the average split-half reliability using [cormean()]
+#' * Applying the Spearman-Brown formula to the absolute correlation 
+#' using [spearmanBrown()], and restoring the original sign after
 #' 
 #' @export
 #'
@@ -113,7 +113,7 @@
 #'            standardize=TRUE)
 #' 
 rapidsplit<-function(data,subjvar,diffvars=NULL,stratvars=NULL,subscorevar=NULL,
-                      aggvar,splits,
+                      aggvar,splits=6000,
                       aggfunc=c("means","medians"),
                       errorhandling=list(type=c("none","fixedpenalty"),
                                          errorvar=NULL,fixedpenalty=600,blockvar=NULL),
@@ -324,12 +324,12 @@ rapidsplit<-function(data,subjvar,diffvars=NULL,stratvars=NULL,subscorevar=NULL,
   rownames(antikeyscores)<-origpps[match(rownames(antikeyscores),pps)]
   
   # Get correlations
-  cors<-corByColumns(keyscores,antikeyscores) |> spearmanBrown()
+  cors<-corByColumns(keyscores,antikeyscores)
   sampsize<-length(pps)
   
   # Form output
-  out<-list(r=cormean(cors,sampsize),
-            allcors=cors,
+  out<-list(r=spearmanBrown(cormean(cors,sampsize)),
+            allcors=spearmanBrown(cors),
             nobs=sampsize)
   
   # Add individual split halves if requested
@@ -441,8 +441,8 @@ plot.rapidsplit<-function(x,type=c("average","minimum","maximum","random","all")
 #' 
 rapidsplit.chunks<-
   function(data,subjvar,diffvars=NULL,stratvars=NULL,subscorevar=NULL,
-           aggvar,splits,
-           aggfunc=c("means","medians","custom"),
+           aggvar,splits=6000,
+           aggfunc=c("means","medians"),
            errorhandling=list(type=c("none","fixedpenalty"),
                               errorvar=NULL,fixedpenalty=600,blockvar=NULL),
            standardize=FALSE,include.scores=TRUE,verbose=TRUE,check=TRUE,

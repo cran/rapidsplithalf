@@ -67,7 +67,7 @@ Helper functions to compute important statistics from correlation coefficients.
 
 \item \code{r2p()}: Computes the two-sided p-value for a given correlation.
 
-\item \code{rconfint()}: Computes confidence intervals for a given correlation coefficient.
+\item \code{rconfint()}: Computes confidence intervals for one or multiple correlation coefficients.
 
 \item \code{compcorr()}: Computes the significance of the difference between two correlation coefficients.
 

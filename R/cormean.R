@@ -54,12 +54,18 @@ t2r<-function(t,n){ sqrt(t/sqrt(t^2+n-2)) }
 r2p<-function(r,n){ 2*pt(abs(r2t(r,n)),n-2,lower.tail=FALSE) }
 
 #' @export
-#' @describeIn correlation-tools Computes confidence intervals for a given correlation coefficient.
+#' @describeIn correlation-tools Computes confidence intervals for one or multiple correlation coefficients.
 rconfint<-function(r,n,alpha=.05){
-  z<-r2z(r)
-  zint<-qnorm(1-alpha/2) * sqrt(1/(n-3))
-  confints<-c(z2r(z-zint),z2r(z+zint))
-  return(rconfint)
+  z <- r2z(r)
+  zint <- qnorm(1 - alpha/2) * sqrt(1/(n - 3))
+  if(length(r)==1){
+    confints <- c(z2r(z - zint), z2r(z + zint))
+  }else if(length(r)>1){
+    confints <- cbind(z2r(z - zint), z2r(z + zint))
+  }else{
+    confints <- NULL
+  }
+  return(confints)
 }
 
 #' @export

@@ -14,7 +14,7 @@ rapidsplit(
   stratvars = NULL,
   subscorevar = NULL,
   aggvar,
-  splits,
+  splits = 6000,
   aggfunc = c("means", "medians"),
   errorhandling = list(type = c("none", "fixedpenalty"), errorvar = NULL, fixedpenalty =
     600, blockvar = NULL),
@@ -40,8 +40,8 @@ rapidsplit.chunks(
   stratvars = NULL,
   subscorevar = NULL,
   aggvar,
-  splits,
-  aggfunc = c("means", "medians", "custom"),
+  splits = 6000,
+  aggfunc = c("means", "medians"),
   errorhandling = list(type = c("none", "fixedpenalty"), errorvar = NULL, fixedpenalty =
     600, blockvar = NULL),
   standardize = FALSE,
@@ -77,8 +77,7 @@ It is recommended to use around 5000.}
 \item{aggfunc}{The function by which to aggregate the variable
 defined in \code{aggvar}; can be \code{"means"}, \code{"medians"},
 or a custom function (not a function name).
-This custom function must take a numeric vector and output a single value.
-Only if \code{aggfunc} is set to \code{"custom"}.}
+This custom function must take a numeric vector and output a single value.}
 
 \item{errorhandling}{A list with 4 named items, to be used to replace error trials
 with the block mean of correct responses plus a fixed penalty, as in the IAT D-score.
@@ -141,14 +140,15 @@ The order of operations (with optional steps between brackets) is:
 \item (Dividing the resulting (sub)score by the SD of the data used to compute that (sub)score)
 \item (Averaging subscores together into a single score per person)
 \item Correlating scores from one half with scores from the other half
-\item Applying the Spearman-Brown correction using \code{\link[=spearmanBrown]{spearmanBrown()}}
 \item Computing the average split-half reliability using \code{\link[=cormean]{cormean()}}
+\item Applying the Spearman-Brown formula to the absolute correlation
+using \code{\link[=spearmanBrown]{spearmanBrown()}}, and restoring the original sign after
 }
 }
 \note{
 \itemize{
 \item This function can use a lot of memory in one go.
-If you're computing the reliability of a large dataset or you have little RAM,
+If you are computing the reliability of a large dataset or you have little RAM,
 it may pay off to use the sequential version of this function instead:
 \code{\link[=rapidsplit.chunks]{rapidsplit.chunks()}}
 \item It is currently unclear it is better to pre-process your data before or after splitting it.

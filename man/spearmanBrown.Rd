@@ -5,13 +5,21 @@
 \title{Spearman-Brown correction
 Perform a Spearman-Brown correction on the provided correlation score.}
 \usage{
-spearmanBrown(r, ntests = 2)
+spearmanBrown(r, ntests = 2, fix.negative = c("mirror", "nullify", "none"))
 }
 \arguments{
 \item{r}{To-be-corrected correlation coefficient.}
 
-\item{ntests}{An integer indicating how many times larger the full test is, 
+\item{ntests}{An integer indicating how many times larger the full test is,
 for which the corrected correlation coefficient is being computed.}
+
+\item{fix.negative}{How will negative input values be dealt with?
+\itemize{
+\item \code{"mirror"} submits the absolute correlations to the formula
+and restores the original sign afterwards.
+\item \code{"nullify"} sets negative correlations to zero.
+\item \code{"none"} leaves them as-is (not recommended).
+}}
 }
 \value{
 Spearman-Brown corrected correlation coefficients.
@@ -21,7 +29,7 @@ Spearman-Brown correction
 Perform a Spearman-Brown correction on the provided correlation score.
 }
 \details{
-When \code{ntests=2}, the formula will compute what the correlation coefficient would be 
+When \code{ntests=2}, the formula will compute what the correlation coefficient would be
 if the test were twice as long.
 }
 \examples{
