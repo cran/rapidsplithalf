@@ -62,11 +62,29 @@ bootstrapWeights <- function(size, times) {
 #' Correlate each column of 1 matrix with the same column in another matrix
 #'
 #' @param x,y Matrices whose values to correlate by column.
-#' @returns A numeric vector of correlations per column.
+#' @returns \code{corByColumns()} and \code{corByColumns_mask()} return 
+#' a numeric vector of correlations of each pair of columns.
+#' 
+#' \code{corStatsByColumns()} returns a list with named items:
+#' - cormean: the aggregated correlation coefficient of all column pairs (see Details)
+#' - allcors: the correlations of each column pair
+#' - xvar: the column variances of matrix \code{x}
+#' - yvar: the column variances of matrix \code{y}
+#' - covar: the covariances of each column pair
+#' 
+#' @md
 #' @details
 #' The primary use for these functions is to rapidly compute the correlations
 #' between two sets of split-half scores stored in matrix columns.
+#' 
+#' \code{corStatsByColumns} produces the mean correlation of all column-pairs
+#' using the formula \code{mean(covariances) / sqrt(mean(col1variance) * mean(col2variance))}
+#' 
+#' This method is more accurate than [cormean()] and was suggested by 
+#' prof. John Christie of Dalhousie University.
+#' 
 #' @export
+#' @author Sercan Kahveci
 #' @examples
 #' m1<-matrix((1:9)+rnorm(9),ncol=3)
 #' m2<-matrix((9:1)+rnorm(9),ncol=3)
@@ -87,6 +105,15 @@ corByColumns_mask <- function(x, y, mask) {
     .Call('_rapidsplithalf_corByColumns_mask', PACKAGE = 'rapidsplithalf', x, y, mask)
 }
 
+#' @rdname corByColumns
+#' @export
+#' @examples
+#' corStatsByColumns(m1,m2)
+#' 
+corStatsByColumns <- function(x, y) {
+    .Call('_rapidsplithalf_corStatsByColumns', PACKAGE = 'rapidsplithalf', x, y)
+}
+
 #' Fast matrix column aggregators
 #' @name colAggregators
 #' 
@@ -99,6 +126,7 @@ corByColumns_mask <- function(x, y, mask) {
 #' @seealso \link[base]{colMeans}, \link{mediansByMask}, \link{maskAggregators}
 #' @return A numeric vector representing values aggregated by column.
 #' @export
+#' @author Sercan Kahveci
 colMedians <- function(x) {
     .Call('_rapidsplithalf_colMedians', PACKAGE = 'rapidsplithalf', x)
 }
@@ -197,6 +225,7 @@ colSdsMasked <- function(x, mask) {
 #' @return a vector with each value representing an aggregate of the same single input vector 
 #' but with different masks or frequency weights applied.
 #' @export
+#' @author Sercan Kahveci
 mediansByMask <- function(x, mask) {
     .Call('_rapidsplithalf_mediansByMask', PACKAGE = 'rapidsplithalf', x, mask)
 }

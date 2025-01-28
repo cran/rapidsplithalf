@@ -10,6 +10,7 @@
 #' @importFrom doParallel registerDoParallel
 #' @importFrom parallel makeCluster stopCluster detectCores
 #' @importFrom foreach foreach %dopar%
+#' @author Sercan Kahveci
 #' @description
 #' To learn more about rapidsplithalf, view the introductory vignette:
 #' \code{vignette("rapidsplithalf",package="rapidsplithalf")}

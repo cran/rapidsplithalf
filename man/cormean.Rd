@@ -9,7 +9,8 @@ cormean(
   n,
   weights = c("none", "n", "df"),
   type = c("OP5", "OP2", "OPK"),
-  na.rm = FALSE
+  na.rm = FALSE,
+  incl.trans = FALSE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ cormean(
 with "OP5" usually being the most accurate.}
 
 \item{na.rm}{Logical. Should missing values be removed?}
+
+\item{incl.trans}{Logical. Should the transformed correlations be included?}
 }
 \value{
 An average correlation.

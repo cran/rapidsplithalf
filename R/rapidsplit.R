@@ -2,7 +2,7 @@
 
 
 #' rapidsplit
-#' @description A very fast algorithm for computing stratified permutated split-half reliability.
+#' @description A very fast algorithm for computing stratified permutation-based split-half reliability.
 #'
 #' @param data Dataset, a \code{data.frame}.
 #' @param subjvar Subject ID variable name, a \code{character}.
@@ -40,6 +40,8 @@
 #' 
 #' * \code{r}: the averaged reliability.
 #' 
+#' * \code{ci}: the 95% confidence intervals.
+#' 
 #' * \code{allcors}: a vector with the reliability of each iteration.
 #' 
 #' * \code{nobs}: the number of participants.
@@ -68,13 +70,26 @@
 #' * Subtracting conditions from each other
 #' * (Dividing the resulting (sub)score by the SD of the data used to compute that (sub)score)
 #' * (Averaging subscores together into a single score per person)
-#' * Correlating scores from one half with scores from the other half
-#' * Computing the average split-half reliability using [cormean()]
+#' * Computing the covariances of scores from one half with scores from the other half 
+#' for every split
+#' * Computing the variances of scores within each half for every split
+#' * Computing the average split-half correlation with the average variances and covariance 
+#' across all splits, using [corStatsByColumns()]
 #' * Applying the Spearman-Brown formula to the absolute correlation 
 #' using [spearmanBrown()], and restoring the original sign after
 #' 
+#' [cormean()] was used to aggregate correlations in previous versions 
+#' of this package & in the associated manuscript, but the method based on 
+#' (co)variance averaging was found to be more accurate. This was suggested by 
+#' prof. John Christie of Dalhousie University.
+#' 
+#' @references Kahveci, S., Bathke, A.C. & Blechert, J. (2024) 
+#' Reaction-time task reliability is more accurately computed with 
+#' permutation-based split-half correlations than with Cronbach’s alpha. 
+#' Psychonomic Bulletin and Review. \doi{10.3758/s13423-024-02597-y}
+#' 
 #' @export
-#'
+#' @author Sercan Kahveci
 #' @examples 
 #' 
 #' data(foodAAT)
@@ -324,12 +339,13 @@ rapidsplit<-function(data,subjvar,diffvars=NULL,stratvars=NULL,subscorevar=NULL,
   rownames(antikeyscores)<-origpps[match(rownames(antikeyscores),pps)]
   
   # Get correlations
-  cors<-corByColumns(keyscores,antikeyscores)
+  coraggs<-corStatsByColumns(keyscores,antikeyscores)
   sampsize<-length(pps)
   
   # Form output
-  out<-list(r=spearmanBrown(cormean(cors,sampsize)),
-            allcors=spearmanBrown(cors),
+  out<-list(r=spearmanBrown(coraggs$cormean),
+            ci=quantile(spearmanBrown(coraggs$allcors),c(.025,.975)),
+            allcors=spearmanBrown(coraggs$allcors),
             nobs=sampsize)
   
   # Add individual split halves if requested

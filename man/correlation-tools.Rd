@@ -86,3 +86,6 @@ print(compcorr(.5,.7,20,20))
 \seealso{
 \link{cormean}
 }
+\author{
+Sercan Kahveci
+}

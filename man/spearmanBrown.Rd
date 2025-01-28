@@ -36,3 +36,6 @@ if the test were twice as long.
 spearmanBrown(.5)
 
 }
+\author{
+Sercan Kahveci
+}

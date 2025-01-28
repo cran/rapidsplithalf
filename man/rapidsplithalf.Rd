@@ -8,3 +8,6 @@
 To learn more about rapidsplithalf, view the introductory vignette:
 \code{vignette("rapidsplithalf",package="rapidsplithalf")}
 }
+\author{
+Sercan Kahveci
+}

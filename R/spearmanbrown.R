@@ -18,6 +18,7 @@
 #' 
 #' @return Spearman-Brown corrected correlation coefficients.
 #' @export
+#' @author Sercan Kahveci
 #' @md
 #' @examples
 #' spearmanBrown(.5)

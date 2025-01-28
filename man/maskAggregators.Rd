@@ -103,3 +103,6 @@ sd(bootmeans/bootsds)
 \seealso{
 \link{colMedians}, \link{colAggregators}, \link{generateSplits}
 }
+\author{
+Sercan Kahveci
+}

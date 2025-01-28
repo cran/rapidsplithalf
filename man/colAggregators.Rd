@@ -54,3 +54,6 @@ colSdsMasked(x,mask)
 \seealso{
 \link[base]{colMeans}, \link{mediansByMask}, \link{maskAggregators}
 }
+\author{
+Sercan Kahveci
+}

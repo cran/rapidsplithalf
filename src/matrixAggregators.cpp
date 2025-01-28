@@ -17,6 +17,7 @@ using namespace Rcpp;
 //' @seealso \link[base]{colMeans}, \link{mediansByMask}, \link{maskAggregators}
 //' @return A numeric vector representing values aggregated by column.
 //' @export
+//' @author Sercan Kahveci
 // [[Rcpp::export]]
 NumericVector colMedians(NumericMatrix x){
  int tl = x.ncol();
@@ -173,6 +174,7 @@ NumericVector colSdsMasked(NumericMatrix x, LogicalMatrix mask){
 //' @return a vector with each value representing an aggregate of the same single input vector 
 //' but with different masks or frequency weights applied.
 //' @export
+//' @author Sercan Kahveci
 // [[Rcpp::export]]
 NumericVector mediansByMask(NumericVector x, LogicalMatrix mask){
  int tl = mask.ncol();

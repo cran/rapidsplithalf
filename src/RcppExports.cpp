@@ -59,6 +59,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// corStatsByColumns
+List corStatsByColumns(NumericMatrix x, NumericMatrix y);
+RcppExport SEXP _rapidsplithalf_corStatsByColumns(SEXP xSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(corStatsByColumns(x, y));
+    return rcpp_result_gen;
+END_RCPP
+}
 // colMedians
 NumericVector colMedians(NumericMatrix x);
 RcppExport SEXP _rapidsplithalf_colMedians(SEXP xSEXP) {
@@ -258,6 +270,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rapidsplithalf_bootstrapWeights", (DL_FUNC) &_rapidsplithalf_bootstrapWeights, 2},
     {"_rapidsplithalf_corByColumns", (DL_FUNC) &_rapidsplithalf_corByColumns, 2},
     {"_rapidsplithalf_corByColumns_mask", (DL_FUNC) &_rapidsplithalf_corByColumns_mask, 3},
+    {"_rapidsplithalf_corStatsByColumns", (DL_FUNC) &_rapidsplithalf_corStatsByColumns, 2},
     {"_rapidsplithalf_colMedians", (DL_FUNC) &_rapidsplithalf_colMedians, 1},
     {"_rapidsplithalf_colProds", (DL_FUNC) &_rapidsplithalf_colProds, 1},
     {"_rapidsplithalf_colSds", (DL_FUNC) &_rapidsplithalf_colSds, 1},
