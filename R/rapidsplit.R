@@ -46,16 +46,18 @@
 #' 
 #' * \code{nobs}: the number of participants.
 #' 
+#' * \code{rcomponents}: a list containing the mean variance of the scores of both halves, 
+#' as well as their mean covariance.
+#' 
 #' * \code{scores}: the individual participants scores in each split-half, 
 #' contained in a list with two matrices (Only included if requested with \code{include.scores}).
 #' 
 #' @md
 #' 
 #' @note
-#' * This function can use a lot of memory in one go. 
+#' * [rapidsplit()] function can use a lot of memory in one go. 
 #' If you are computing the reliability of a large dataset or you have little RAM, 
-#' it may pay off to use the sequential version of this function instead: 
-#' [rapidsplit.chunks()]
+#' it may pay off to use [rapidsplit.chunks()] instead.
 #' 
 #' * It is currently unclear it is better to pre-process your data before or after splitting it. 
 #' If you are computing the IAT D-score, 
@@ -105,7 +107,7 @@
 #'                  
 #' print(frel)
 #' 
-#' plot(frel,type="all")
+#' plot(frel)
 #' 
 #'            
 #' # Compute a single random split-half reliability of the error rate
@@ -149,17 +151,18 @@ rapidsplit<-function(data,subjvar,diffvars=NULL,stratvars=NULL,subscorevar=NULL,
   runorder<-do.call(order,data[c(subjvar,subscorevar,errorhandling$blockvar,diffvars,stratvars)])
   arr.ds<- data[runorder,c(subjvar,subscorevar,errorhandling$blockvar,diffvars,stratvars,
                            aggvar,errorhandling$errorvar)]
-  origpps<-unique(arr.ds[[subjvar]])
+  rm(data)
+  origpps<-funique(arr.ds[[subjvar]])
   arr.ds[c(subjvar,subscorevar,diffvars,stratvars)]<-
     cols2ids(arr.ds[c(subjvar,subscorevar,diffvars,stratvars)])
   
   # Create indices
   arr.ds[[".diffidx"]]<-do.call(paste,arr.ds[,c(subjvar,subscorevar,diffvars),drop=FALSE])
   arr.ds[[".subscore"]]<-do.call(paste,arr.ds[,c(subjvar,subscorevar),drop=FALSE])
-  subscores<-unique(arr.ds[[".subscore"]])
-  pps<-unique(arr.ds[[subjvar]])
+  subscores<-funique(arr.ds[[".subscore"]])
+  pps<-funique(arr.ds[[subjvar]])
   
-  diffidx<-unique(arr.ds[,c(subjvar,subscorevar,diffvars,".subscore",".diffidx"),drop=FALSE])
+  diffidx<-funique(arr.ds[,c(subjvar,subscorevar,diffvars,".subscore",".diffidx"),drop=FALSE])
   subscorelist<-split(arr.ds,arr.ds[[".subscore"]])
   difflist<-split(arr.ds,arr.ds[[".diffidx"]])
   
@@ -171,9 +174,8 @@ rapidsplit<-function(data,subjvar,diffvars=NULL,stratvars=NULL,subscorevar=NULL,
   }
   for(ss in subscores){
     if(verbose){ setTxtProgressBar(pb,which(ss==subscores)) }
-    iterds<-arr.ds[arr.ds[[".subscore"]]==ss,c(diffvars,stratvars),drop=FALSE]
-    iterrle<-rle(do.call(paste,args=iterds))
-    grsizes<-iterrle$lengths
+    iterds<-subscorelist[[ss]][,c(diffvars,stratvars),drop=FALSE]
+    grsizes<-runlengths(do.call(paste,args=iterds))
     if(length(grsizes)==0){grsizes<-nrow(iterds)}
     keys[[ss]]<-stratifiedItersplits(splits=splits, groupsizes=grsizes)
   }
@@ -185,7 +187,7 @@ rapidsplit<-function(data,subjvar,diffvars=NULL,stratvars=NULL,subscorevar=NULL,
     aggdim<-"matrix"
     arr.ds[[".blockidx"]]<-
       do.call(paste,arr.ds[,c(subjvar,subscorevar,errorhandling$blockvar),drop=FALSE])
-    blockidx<-unique(arr.ds[[".blockidx"]])
+    blockidx<-funique(arr.ds[[".blockidx"]])
     aggmats<-split(x=arr.ds[[aggvar]],f=arr.ds[[".blockidx"]])[blockidx] |> 
       lapply(function(x){ matrix(x,nrow=length(x),ncol=splits)})
     
@@ -296,7 +298,6 @@ rapidsplit<-function(data,subjvar,diffvars=NULL,stratvars=NULL,subscorevar=NULL,
       antikeyscores[i,]<-
         colSums(antikeymeans[diffidx[[".subscore"]]==subscores[i],,drop=FALSE] * 
                   diffidx[[".valence"]][diffidx[[".subscore"]]==subscores[i]])
-      
     }
   }else{
     keyscores<-keymeans
@@ -326,17 +327,17 @@ rapidsplit<-function(data,subjvar,diffvars=NULL,stratvars=NULL,subscorevar=NULL,
     newkeyscores<-newantikeyscores<-matrix(ncol=splits,nrow=length(pps))
     rownames(newkeyscores)<-rownames(newantikeyscores)<-pps
     for(i in seq_along(pps)){
-      ss<-unique(arr.ds[[".subscore"]][arr.ds[[subjvar]]==pps[i]])
-      newkeyscores[i,]<-colMeans(keyscores[ss,])
-      newantikeyscores[i,]<-colMeans(antikeyscores[ss,])
+      ss<-funique(arr.ds[[".subscore"]][arr.ds[[subjvar]]==pps[i]])
+      newkeyscores[i,]<-colMeans(keyscores[ss,,drop=FALSE])
+      newantikeyscores[i,]<-colMeans(antikeyscores[ss,,drop=FALSE])
     }
     keyscores<-newkeyscores
     antikeyscores<-newantikeyscores
   }
   
   # Rename matrix rows to fit names in dataset
-  rownames(keyscores)<-origpps[match(rownames(keyscores),pps)]
-  rownames(antikeyscores)<-origpps[match(rownames(antikeyscores),pps)]
+  rownames(keyscores)<-origpps[fmatch(rownames(keyscores),pps)]
+  rownames(antikeyscores)<-origpps[fmatch(rownames(antikeyscores),pps)]
   
   # Get correlations
   coraggs<-corStatsByColumns(keyscores,antikeyscores)
@@ -346,7 +347,10 @@ rapidsplit<-function(data,subjvar,diffvars=NULL,stratvars=NULL,subscorevar=NULL,
   out<-list(r=spearmanBrown(coraggs$cormean),
             ci=quantile(spearmanBrown(coraggs$allcors),c(.025,.975)),
             allcors=spearmanBrown(coraggs$allcors),
-            nobs=sampsize)
+            nobs=sampsize,
+            rcomponents=list(half1var=coraggs$meanxvar,
+                             half2var=coraggs$meanyvar,
+                             covar=coraggs$meancovar))
   
   # Add individual split halves if requested
   if(include.scores){
@@ -425,127 +429,138 @@ plot.rapidsplit<-function(x,type=c("average","minimum","maximum","random","all")
 
 #' @rdname rapidsplit
 #'
-#' @param chunks Number of chunks to divide the splits in, for more memory-efficient computation,
-#' and to divide over multiple cores if requested.
-#' @param cluster Chunks will be run on separate cores if a cluster is provided, 
-#' or an \code{integer} specifying the number of cores. Otherwise, if the value is \code{NULL},
-#' the chunks are run sequentially.
+#' @param split.chunksize,sample.chunksize Number of chunks to divide the splits and sample in 
+#' for more memory-efficient computation. This has no bearing on the result.
 #'
 #' @export
 #'
 #' @examples
-#' 
 #' # Unstratified reliability of the median RT
-#' rapidsplit.chunks(data=foodAAT,
-#'                   subjvar="subjectid",
-#'                   aggvar="RT",
-#'                   splits=100,
+#' # computed in chunks of 20 participants at a time
+#' # to handle large samples
+#' rapidsplit.chunks(data=raceIAT,
+#'                   subjvar="session_id",
+#'                   aggvar="latency",
+#'                   splits=200,
 #'                   aggfunc="medians",
-#'                   chunks=8)
+#'                   sample.chunksize=10)
 #' 
 #' # Compute the reliability of Tukey's trimean of the RT
-#' # on 2 CPU cores
+#' # in subsets of 100 splits and 20 participants per run
 #' trimean<-function(x){ 
 #'   sum(quantile(x,c(.25,.5,.75))*c(1,2,1))/4
 #' }
 #' rapidsplit.chunks(data=foodAAT,
 #'                   subjvar="subjectid",
 #'                   aggvar="RT",
-#'                   splits=200,
+#'                   splits=400,
 #'                   aggfunc=trimean,
-#'                   cluster=2)
+#'                   split.chunksize=150,
+#'                   sample.chunksize=20)
 #' 
-rapidsplit.chunks<-
+rapidsplit.chunks <-
   function(data,subjvar,diffvars=NULL,stratvars=NULL,subscorevar=NULL,
            aggvar,splits=6000,
            aggfunc=c("means","medians"),
            errorhandling=list(type=c("none","fixedpenalty"),
                               errorvar=NULL,fixedpenalty=600,blockvar=NULL),
            standardize=FALSE,include.scores=TRUE,verbose=TRUE,check=TRUE,
-           chunks=4,cluster=NULL){
+           split.chunksize=10000,sample.chunksize=200){
     
-  # process errorhandling object
-  errorhandling<-checkerrorhandling(errorhandling)
+    # process errorhandling object
+    errorhandling <- checkerrorhandling(errorhandling)
+    
+    # check input
+    if(check){
+      datachecker(data=data,subjvar=subjvar,diffvars=diffvars,stratvars=stratvars,
+                  subscorevar=subscorevar,aggvar=aggvar,
+                  errorhandling=errorhandling,standardize=standardize)
+    }
+    
+    # check extra args
+    stopifnot(is.numeric(sample.chunksize), sample.chunksize > 1)
+    stopifnot(is.numeric(split.chunksize), split.chunksize > 0)
+    
+    # Get split counts
+    split.chunks <- c(rep(split.chunksize,times=floor(splits/split.chunksize)),
+                      splits %% split.chunksize)
+    allpps <- funique(data[[subjvar]])
+    sample.chunksizes <- c(rep(sample.chunksize,times=floor(length(allpps)/sample.chunksize)),
+                           length(allpps) %% sample.chunksize)
+    if(sample.chunksizes[length(sample.chunksizes)]==1){
+      sample.chunksizes[length(sample.chunksizes)-1] <- sample.chunksizes[length(sample.chunksizes)-1] + 1
+      sample.chunksizes <- sample.chunksizes[seq_len(length(sample.chunksizes)-1)]
+    }
+    sample.chunks <- split(allpps,rep(seq_along(sample.chunksizes),times=sample.chunksizes))
   
-  # check input
-  if(check){
-    datachecker(data=data,subjvar=subjvar,diffvars=diffvars,stratvars=stratvars,
-                subscorevar=subscorevar,aggvar=aggvar,
-                errorhandling=errorhandling,standardize=standardize)
-  }
-  
-  # Get split counts
-  chunks<-abs(ceiling(chunks))
-  splitsizes<-rep(floor(splits/chunks),chunks)
-  splitsizes[1]<-splitsizes[1] + splits %% chunks
-  splitsizes<-splitsizes[splitsizes>0]
-  chunks<-length(splitsizes)
-  
-  if(is.null(cluster)){
     # Run split chunks one by one
-    
     outcomes<-list()
     if(verbose){ 
       cat("Running rapidsplit() in chunks...\n")
-      pb = txtProgressBar(min = 0, max = length(splitsizes), initial = 0)  
+      pb = txtProgressBar(min = 0, max = length(split.chunks)*length(sample.chunks), initial = 0)  
     }
-    for(i in seq_along(splitsizes)){
-      if(verbose){ setTxtProgressBar(pb,i) }
-      outcomes[[i]]<-
-        rapidsplit(data=data,subjvar=subjvar,diffvars=diffvars,stratvars=stratvars,
-                   subscorevar=subscorevar,aggvar=aggvar,
-                   splits=splitsizes[i],
-                   aggfunc=aggfunc,
-                   errorhandling=errorhandling,
-                   standardize=standardize,include.scores=include.scores,
-                   verbose=FALSE,check=FALSE)
+    for(i in seq_along(split.chunks)){
+      splitoutcomes <- list()
+      for(j in seq_along(sample.chunks)){
+        if(verbose){ setTxtProgressBar(pb,(i-1)*length(sample.chunks)+j+1) }
+        splitoutcomes[[j]] <-
+          rapidsplit(data=data[data[[subjvar]] %fin% sample.chunks[[j]],],
+                     subjvar=subjvar,
+                     diffvars=diffvars,
+                     stratvars=stratvars,
+                     subscorevar=subscorevar,
+                     aggvar=aggvar,
+                     splits=split.chunks[i],
+                     aggfunc=aggfunc,
+                     errorhandling=errorhandling,
+                     standardize=standardize,
+                     include.scores=TRUE,
+                     verbose=FALSE,
+                     check=FALSE)
+        
+      }
+      # Transferring the relevant data to lists without using double the memory
+      h1scores <- h2scores <- list()
+      for(j in seq_along(splitoutcomes)){
+        h1scores[[j]] <- splitoutcomes[[j]]$scores$half1
+        splitoutcomes[[j]]$scores$half1 <- NULL
+        h2scores[[j]] <- splitoutcomes[[j]]$scores$half2
+        splitoutcomes[[j]]$scores$half2 <- NULL
+      }
+      h1scores <- do.call(rbind,h1scores)
+      h2scores <- do.call(rbind,h2scores)
+      outcomes[[i]] <- list(corstats=corStatsByColumns(h1scores,h2scores))
+      if(include.scores){
+        outcomes[[i]]$scores <- list(half1=h1scores,half2=h2scores)
+      }
+      rm(h1scores,h2scores)
     }
     if(verbose){close(pb)}
-  }else{
-    # If cluster is requested but not given, make one
-    if(is.numeric(cluster)){
-      ncores<-min(parallel::detectCores(),cluster)
-      cluster<-parallel::makeCluster(spec=ncores)
-      on.exit(stopCluster(cluster))
-    }
     
-    # Run split chunks in parallel
-    ss<-NULL
-    registerDoParallel(cl=cluster,cores=ncores)
-    outcomes<-foreach(ss=splitsizes,
-                      .packages=c("rapidsplithalf"),
-                      .multicombine=TRUE,
-                      .inorder=FALSE) %dopar% {
-                                    
-      rapidsplit(data=data,subjvar=subjvar,diffvars=diffvars,stratvars=stratvars,
-                 subscorevar=subscorevar,aggvar=aggvar,
-                 splits=ss,
-                 aggfunc=aggfunc,
-                 errorhandling=errorhandling,
-                 standardize=standardize,include.scores=include.scores,
-                 verbose=FALSE,check=FALSE)
+    # Merge content
+    output <- list()
+    output[["allcors"]] <- spearmanBrown(unlist(lapply(outcomes,\(x){ x$corstats$allcors })))
+    output[["ci"]] <- quantile(output[["allcors"]],c(.025,.975))
+    half1var <- mean(unlist(lapply(outcomes,\(x){ x$corstats$xvar })))
+    half2var <- mean(unlist(lapply(outcomes,\(x){ x$corstats$yvar })))
+    covar <- mean(unlist(lapply(outcomes,\(x){ x$corstats$covar })))
+    output[["nobs"]] <- length(allpps)
+    output[["r"]] <- spearmanBrown(covar/sqrt(half1var*half2var))
+    output[["rcomponents"]] <- list(half1var=half1var,
+                                    half2var=half2var,
+                                    covar=covar)
+    
+    if(include.scores){
+      output[["scores"]][["half1"]]<-do.call(cbind,lapply(outcomes,\(x)x[["scores"]][["half1"]]))
+      for(i in seq_along(outcomes)){ outcomes[[i]][["scores"]][["half1"]]<-NULL }
+      output[["scores"]][["half2"]]<-do.call(cbind,lapply(outcomes,\(x)x[["scores"]][["half2"]]))
+      for(i in seq_along(outcomes)){ outcomes[[i]][["scores"]][["half2"]]<-NULL }
     }
-  }
-  
-  # Merge content
-  output<-list()
-  output[["allcors"]]<-unlist(lapply(outcomes,\(x)x[["allcors"]]))
-  output[["nobs"]]<-outcomes[[1]][["nobs"]]
-  output[["r"]]<-cormean(output[["allcors"]],output[["nobs"]])
-  if(include.scores){
-    output[["scores"]][["half1"]]<-do.call(cbind,lapply(outcomes,\(x)x[["scores"]][["half1"]]))
-    for(i in seq_along(splitsizes)){ outcomes[[i]][["scores"]][["half1"]]<-NULL }
-    output[["scores"]][["half2"]]<-do.call(cbind,lapply(outcomes,\(x)x[["scores"]][["half2"]]))
-    for(i in seq_along(splitsizes)){ outcomes[[i]][["scores"]][["half2"]]<-NULL }
-  }
-  output<-output[c("r","allcors","nobs","scores")]
-  
-  # Add class
-  output<-structure(output,class="rapidsplit")
-  
-  # Return
-  return(output)
+    output<-output[c("r","ci","allcors","nobs","rcomponents","scores")]
+    
+    # Add class
+    output<-structure(output,class="rapidsplit")
+    
+    # Return
+    return(output)
 }
-
-
-

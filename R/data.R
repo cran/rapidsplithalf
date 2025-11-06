@@ -6,7 +6,7 @@
 #'
 #' @docType data
 #'
-#' @usage data(foodAAT)
+#' @usage data(foodAAT, package="rapidsplithalf")
 #'
 #' @format An object of class \code{"data.frame"}.
 #' 
@@ -49,7 +49,7 @@
 #'
 #' @docType data
 #'
-#' @usage data(raceIAT)
+#' @usage data(raceIAT, package="rapidsplithalf")
 #'
 #' @format An object of class \code{"data.frame"}.
 #' 

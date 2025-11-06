@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE,
 
 ## Introduction
 
-The R package *rapidsplithalf* computes the permutation-based split-half reliability of reaction time tasks quickly and accurately, using a balanced splitting algorithm that ensures both halves are of maximally equal size regardless of how many subdivisions exist, for example due to conditions or stratification. As far as we know, this is the only R package for split-half reliability that does so. *rapidsplit* further allows for stratification of the splits, for example by stimulus, to ensure that the two halves are as similar to each other as possible. [Kahveci et al. (2022)](https://doi.org/10.31234/osf.io/ta59r) found that this stratification enhances the accuracy of the reliability estimate. Lastly, there is support for performing certain pre-processing operations *after* splitting the data rather than before.
+The R package *rapidsplithalf* computes the permutation-based split-half reliability of reaction time tasks quickly and accurately, using a balanced splitting algorithm that ensures both halves are of maximally equal size regardless of how many subdivisions exist, for example due to conditions or stratification. *rapidsplithalf* further allows for stratification of the splits, for example by stimulus, to ensure that the two halves are as similar to each other as possible. [Kahveci et al. (2025)](https://doi.org/10.3758/s13423-024-02597-y) found that this stratification enhances the accuracy of the reliability estimate. Lastly, there is support for performing certain pre-processing operations *after* splitting the data rather than before.
 
 ## Getting started
 
@@ -28,7 +28,7 @@ data(raceIAT)
 
 Let's say we have a reaction time task with 2 conditions whose RTs we average and then subtract from each other within each participant. We want to know the reliability of this difference score. What do we do?
 
-[Kahveci et al. (2022)](https://doi.org/10.31234/osf.io/ta59r) give a number of recommendations based on simulation analyses. 
+[Kahveci et al. (2025)](https://doi.org/10.3758/s13423-024-02597-y) give a number of recommendations based on simulation analyses. 
 
 * Split-half reliability far exceeds in precision compared to Cronbach's alpha. They also find much better accuracy in performing many repeated random splits and averaging the result, rather than performing a single even-odd split.
 

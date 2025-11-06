@@ -11,7 +11,7 @@ An object of class \code{"data.frame"}.
 \href{https://osf.io/y9hiq/}{OSF.io repository}
 }
 \usage{
-data(raceIAT)
+data(raceIAT, package="rapidsplithalf")
 }
 \description{
 This data originates from the publicly available

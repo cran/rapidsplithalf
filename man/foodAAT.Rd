@@ -11,7 +11,7 @@ An object of class \code{"data.frame"}.
 \doi{10.1016/j.appet.2018.01.032}
 }
 \usage{
-data(foodAAT)
+data(foodAAT, package="rapidsplithalf")
 }
 \description{
 This data originates from an approach-avoidance task examining approach bias towards food.

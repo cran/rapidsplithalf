@@ -45,5 +45,3 @@ spearmanBrown<-function(r,ntests=2,fix.negative=c("mirror","nullify","none")){
 
 
 
-
-

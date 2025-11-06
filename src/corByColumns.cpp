@@ -114,8 +114,16 @@ List corStatsByColumns(NumericMatrix x, NumericMatrix y){
       yvars[i] = sum(pow(currmat2,2))/currdf;
       covs[i] = sum(currmat1*currmat2)/currdf;
    }
+   
+   double meanxvar = mean(xvars);
+   double meanyvar = mean(yvars);
+   double meancovar = mean(covs);
+   
    List output = 
-      List::create(Named("cormean") = mean(covs) / sqrt(mean(xvars)*mean(yvars)),
+      List::create(Named("cormean") = meancovar / sqrt(meanxvar*meanyvar),
+                   Named("meanxvar") = meanxvar,
+                   Named("meanyvar") = meanyvar,
+                   Named("meancovar") = meancovar,
                    Named("allcors") = covs / sqrt(xvars*yvars),
                    Named("xvar") = xvars,
                    Named("yvar") = yvars,
