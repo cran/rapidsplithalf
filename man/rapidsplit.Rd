@@ -178,7 +178,7 @@ frel<-rapidsplit(data=foodAAT,
                  
 print(frel)
 
-plot(frel)
+plot(frel,type="average")
 
            
 # Compute a single random split-half reliability of the error rate
@@ -197,31 +197,18 @@ rapidsplit(data=raceIAT,
            aggvar="latency",
            errorhandling=list(type="fixedpenalty",errorvar="error",
                               fixedpenalty=600,blockvar="block_number"),
-           splits=100,
+           splits=10,
            standardize=TRUE)
 
-# Unstratified reliability of the median RT
-# computed in chunks of 20 participants at a time
-# to handle large samples
-rapidsplit.chunks(data=raceIAT,
-                  subjvar="session_id",
-                  aggvar="latency",
-                  splits=200,
-                  aggfunc="medians",
-                  sample.chunksize=10)
 
-# Compute the reliability of Tukey's trimean of the RT
-# in subsets of 100 splits and 20 participants per run
-trimean<-function(x){ 
-  sum(quantile(x,c(.25,.5,.75))*c(1,2,1))/4
-}
+# Compute the reliability of mean RT
+# in subsets of 200 splits and 100 participants per run
 rapidsplit.chunks(data=foodAAT,
                   subjvar="subjectid",
                   aggvar="RT",
                   splits=400,
-                  aggfunc=trimean,
-                  split.chunksize=150,
-                  sample.chunksize=20)
+                  split.chunksize=200,
+                  sample.chunksize=50)
 
 }
 \references{
