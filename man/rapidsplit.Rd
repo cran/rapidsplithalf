@@ -10,11 +10,11 @@
 rapidsplit(
   data,
   subjvar,
+  aggvar,
   diffvars = NULL,
   stratvars = NULL,
   subscorevar = NULL,
-  aggvar,
-  splits = 6000,
+  splits = 6000L,
   aggfunc = c("means", "medians"),
   errorhandling = list(type = c("none", "fixedpenalty"), errorvar = NULL, fixedpenalty =
     600, blockvar = NULL),
@@ -24,7 +24,7 @@ rapidsplit(
   check = TRUE
 )
 
-\method{print}{rapidsplit}(x, ...)
+\method{print}{rapidsplit}(x, goal_r = 0.8, ...)
 
 \method{plot}{rapidsplit}(
   x,
@@ -36,11 +36,11 @@ rapidsplit(
 rapidsplit.chunks(
   data,
   subjvar,
+  aggvar,
   diffvars = NULL,
   stratvars = NULL,
   subscorevar = NULL,
-  aggvar,
-  splits = 6000,
+  splits = 6000L,
   aggfunc = c("means", "medians"),
   errorhandling = list(type = c("none", "fixedpenalty"), errorvar = NULL, fixedpenalty =
     600, blockvar = NULL),
@@ -48,14 +48,17 @@ rapidsplit.chunks(
   include.scores = TRUE,
   verbose = TRUE,
   check = TRUE,
-  split.chunksize = 10000,
-  sample.chunksize = 200
+  split.chunksize = 10000L,
+  sample.chunksize = 200L
 )
 }
 \arguments{
 \item{data}{Dataset, a \code{data.frame}.}
 
 \item{subjvar}{Subject ID variable name, a \code{character}.}
+
+\item{aggvar}{Name of variable whose values to aggregate, a \code{character}.
+Examples include reaction times and error rates.}
 
 \item{diffvars}{Names of variables that determine which conditions
 need to be subtracted from each other, \code{character}.}
@@ -67,9 +70,6 @@ be stratified by; a \code{character}.}
 a participant's data from which separate scores should be computed.
 To compute a participant's final score, these subscores will be averaged together.
 A typical use case is the D-score of the implicit association task.}
-
-\item{aggvar}{Name of variable whose values to aggregate, a \code{character}.
-Examples include reaction times and error rates.}
 
 \item{splits}{Number of split-halves to average, an \code{integer}.
 It is recommended to use around 5000.}
@@ -99,13 +99,16 @@ will be based on the unpenalized SD of correct and incorrect trials, as in the I
 
 \item{x}{\code{rapidsplit} object to print or plot.}
 
+\item{goal_r}{A goal reliability value, which will be used to compute the required test size.}
+
 \item{...}{Ignored.}
 
 \item{type}{Character argument indicating what should be plotted. 
 By default, this plots the random split whose correlation is closest to the average.
 However, this can also plot the random split with 
 the \code{"minimum"} or \code{"maximum"} split-half correlation, or any \code{"random"} split. 
-\code{"all"} splits can also be plotted together in one figure.}
+\code{"all"} splits can also be plotted together in one figure, while
+\code{"many"} implies 1000 splits (or less, in case less than 1000 were computed).}
 
 \item{show.labels}{Should participant IDs be shown above their points in the scatterplot?
 Defaults to \code{TRUE} and is ignored when \code{type} is \code{"all"}.}
@@ -119,7 +122,7 @@ A \code{list} containing
 \item \code{r}: the averaged reliability.
 \item \code{ci}: the 95\% confidence intervals.
 \item \code{allcors}: a vector with the reliability of each iteration.
-\item \code{nobs}: the number of participants.
+\item \code{nobs}: a vector with (1) the number of participants and (2) the average number of values per participant.
 \item \code{rcomponents}: a list containing the mean variance of the scores of both halves,
 as well as their mean covariance.
 \item \code{scores}: the individual participants scores in each split-half,
@@ -167,7 +170,7 @@ after splitting, or you can process your data before splitting and forgo these t
 
 data(foodAAT)
 # Reliability of the double difference score:
-# [RT(push food)-RT(pull food)] - [RT(push object)-RT(pull object)]
+# {RT(push food)-RT(pull food)} - {RT(push object)-RT(pull object)}
 
 frel<-rapidsplit(data=foodAAT,
                  subjvar="subjectid",

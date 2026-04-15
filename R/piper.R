@@ -26,7 +26,7 @@
 #' half1<-foodAAT[ mysplits[,1],]
 #' half2<-foodAAT[!mysplits[,1],]
 #' 
-generateSplits<-function(data,subsetvars,stratvars=NULL,splits,verbose=TRUE){
+generateSplits<-function(data,subsetvars,stratvars=NULL,splits=6000,verbose=TRUE){
   
   # Arrange properly
   runorder<-do.call(order,data[,c(subsetvars,stratvars),drop=FALSE])
@@ -37,13 +37,13 @@ generateSplits<-function(data,subsetvars,stratvars=NULL,splits,verbose=TRUE){
   
   # Stratify by split stratum
   origkeys<-setNames(vector(mode="list",length=length(subsets)),subsets)
-  if(verbose){ pb = txtProgressBar(min = 0, max = length(subsets), initial = 0) }
+  if(verbose){ pb <- txtProgressBar(min = 0L, max = length(subsets), initial = 0L) }
   for(ss in subsets){
     if(verbose){ setTxtProgressBar(pb,which(ss==subsets)) }
     iterds<-arr.ds[subsetvec==ss,c(stratvars),drop=FALSE]
     iterrle<-rle(do.call(paste,args=iterds))
     grsizes<-iterrle$lengths
-    if(length(grsizes)==0){grsizes<-nrow(iterds)}
+    if(length(grsizes)==0L){grsizes<-nrow(iterds)}
     origkeys[[ss]]<-stratifiedItersplits(splits=splits, groupsizes=grsizes)
   }
   origkeys<-do.call(rbind,origkeys)
@@ -63,7 +63,7 @@ applyAggregator<-function(data,subsetvars,aggvar,aggfunc,mask,verbose=TRUE){
   
   subsets<-unique(subsetvec)
   aggs<-matrix(ncol=ncol(mask),nrow=length(subsets))
-  if(verbose){ pb = txtProgressBar(min = 0, max = length(subsets), initial = 0) }
+  if(verbose){ pb <- txtProgressBar(min = 0L, max = length(subsets), initial = 0L) }
   for(i in seq_along(subsets)){
     if(verbose){ setTxtProgressBar(pb,i) }
     aggs[i,]<-

@@ -74,6 +74,10 @@ Helper functions to compute important statistics from correlation coefficients.
 \item \code{print(compcorr)}: Computes the significance of the difference between two correlation coefficients.
 
 }}
+\note{
+\code{compcorr()} should not be used to compare permutation-based reliabilities.
+In that context, it has an excessive type-1 error. Use [comprel()] instead.
+}
 \examples{
 z <- r2z(.5)
 r <- z2r(z)

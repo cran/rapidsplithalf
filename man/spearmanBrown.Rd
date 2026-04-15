@@ -36,6 +36,9 @@ if the test were twice as long.
 spearmanBrown(.5)
 
 }
+\seealso{
+\code{\link[=requiredTestSize]{requiredTestSize()}} to compute how many items a test with a known reliability needs, to achieve a goal reliability.
+}
 \author{
 Sercan Kahveci
 }

@@ -17,6 +17,8 @@
 #' For \code{compcorr()}, a \code{compcorr} object containing
 #' a z and p value for the requested comparison, 
 #' which can be printed with \code{print.compcorr()}.
+#' @note \code{compcorr()} should not be used to compare permutation-based reliabilities.
+#' In that context, it has an excessive type-1 error. Use [comprel()] instead.
 #' @examples
 #' z <- r2z(.5)
 #' r <- z2r(z)
@@ -30,38 +32,46 @@ NULL
 #' @export
 #' @describeIn correlation-tools Converts correlation coefficients to z-scores.
 r2z<-function(r){
-  z<-.5 * (log(1+r) - log(1-r))
-  return(z)
+  #.5 * (log(1+r) - log(1-r))
+  atanh(r)
 }
+
 #' @export
 #' @describeIn correlation-tools Converts z-scores to correlation coefficients.
 z2r<-function(z){
-  r<-(exp(2*z)-1)/(exp(2*z)+1)
-  rma<-which(is.nan(r))
-  r[rma]<-ifelse(z[rma]>0,1,-1)
-  return(r)
+  # r<-(exp(2*z)-1)/(exp(2*z)+1)
+  # rma<-which(is.nan(r) & !is.nan(z))
+  # r[rma]<-ifelse(z[rma]>0,1,-1)
+  # return(r)
+  tanh(z)
 }
 
 #' @export
 #' @describeIn correlation-tools Converts correlation coefficients to t-scores.
-r2t<-function(r,n){ (r*sqrt(n-2))/sqrt(1-r^2) }
+r2t<-function(r,n){ 
+  (r*sqrt(n-2))/sqrt(1-r^2)
+}
 
 #' @export
 #' @describeIn correlation-tools Converts t-scores to correlation coefficients.
-t2r<-function(t,n){ sqrt(t/sqrt(t^2+n-2)) }
+t2r<-function(t,n){ 
+  t/sqrt(t^2+n-2)
+}
 
 #' @export
 #' @describeIn correlation-tools Computes the two-sided p-value for a given correlation.
-r2p<-function(r,n){ 2*pt(abs(r2t(r,n)),n-2,lower.tail=FALSE) }
+r2p<-function(r,n){ 
+  2*pt(abs(r2t(r,n)),n-2,lower.tail=FALSE)
+}
 
 #' @export
 #' @describeIn correlation-tools Computes confidence intervals for one or multiple correlation coefficients.
 rconfint<-function(r,n,alpha=.05){
   z <- r2z(r)
   zint <- qnorm(1 - alpha/2) * sqrt(1/(n - 3))
-  if(length(r)==1){
+  if(length(r)==1L){
     confints <- c(z2r(z - zint), z2r(z + zint))
-  }else if(length(r)>1){
+  }else if(length(r)>1L){
     confints <- cbind(z2r(z - zint), z2r(z + zint))
   }else{
     confints <- NULL
@@ -82,6 +92,59 @@ compcorr<-function(r1,r2,n1,n2){
 print.compcorr<-function(x,...){
   cat("Two-tailed Z-test for the difference between two correlation coefficients.",
       "\nZ =",x$zscore,"\np =",x$pvalue,"\n")
+}
+
+#' Compare split-half reliabilities
+#'
+#' @param x,y Either \code{rapidsplit} objects outputted by [rapidsplithalf()], or 
+#' raw vectors or permutation-based split-half reliabilities.
+#' @param alternative The type of test to perform: "two.sided", 
+#' "less" (x < y), or "greater" (x > y).
+#'
+#' @returns The p-value for the difference.
+#' @details
+#' For each split-half correlation in \code{x},
+#' this computes the percentage of individual split-half correlations in \code{y}
+#' that are smaller; these percentages are then averaged and modified in accordance 
+#' with the test requested in \code{alternative} to give the p-value.
+#' 
+#' @note A large number of splits (>10,000) is recommended to get an accurate p-value.
+#' 
+#' @md
+#' @author Sercan Kahveci
+#' @export
+#'
+#' @examples
+#' 
+#' # Here we will demonstrate that the reliability of the practice trials in the IAT
+#' # is higher than the reliability of the non-practice trials.
+#' data(raceIAT)
+#' rel1 <- rapidsplit(data=raceIAT[raceIAT$blocktype=="practice",],
+#'                    subjvar="session_id",diffvars="congruent",
+#'                    subscorevar="blocktype",aggvar="latency",splits=1000,standardize=TRUE)
+#'                    
+#' rel2 <- rapidsplit(data=raceIAT[raceIAT$blocktype=="full",],
+#'                    subjvar="session_id",diffvars="congruent",
+#'                    subscorevar="blocktype",aggvar="latency",splits=1000,standardize=TRUE)
+#' comprel(rel1,rel2,alternative="greater")
+#' 
+comprel <- function(x,y,alternative=c("two.sided","less","greater")){
+  if(inherits(x,"rapidsplit")){ x <- x$allcors }
+  if(inherits(y,"rapidsplit")){ y <- y$allcors }
+  minlength <- min(length(x),length(y))
+  if(minlength<1000L){
+    warning("Insufficient split-half iterations in x and/or y.")
+  }
+  alternative<-match.arg(alternative)
+  
+  fulldiff <- mean(sapply(x,\(z){mean(y<z)}))
+  if(alternative=="two.sided"){
+    min(fulldiff,1-fulldiff)*2
+  }else if(alternative=="greater"){
+    fulldiff
+  }else if(alternative=="less"){
+    1-fulldiff
+  }
 }
 
 #' Compute a minimally biased average of correlation values
@@ -115,24 +178,26 @@ print.compcorr<-function(x,...){
 #' @examples
 #' cormean(c(0,.3,.5),c(30,30,60))
 #' 
-cormean<-function(r,n,weights=c("none","n","df"),type=c("OP5","OP2","OPK"),na.rm=FALSE,incl.trans=FALSE){
+cormean<-function(r,n,weights=c("none","n","df"),
+                  type=c("OP5","OP2","OPK"),
+                  na.rm=FALSE,incl.trans=FALSE){
   type<-match.arg(type)
   weights<-match.arg(weights)
   
-  if(length(r)==1){
+  if(length(r)==1L){
     return(r)
-  }else if(length(n)==1){
+  }else if(length(n)==1L){
     n<-rep(n,length(r))
   }
   
   if(na.rm){
     missing<-which(is.na(r) | is.na(n))
-    if(length(missing)>0){
+    if(length(missing)>0L){
       r<-r[-missing]
       n<-n[-missing]
     }
   }
-  weight<-list(rep(1,times=length(n)),n,n-1)[[1+(weights=="n")+2*(weights=="df")]]
+  weight<-list(rep(1,times=length(n)),n,n-1)[[1L+(weights=="n")+2L*(weights=="df")]]
   if(length(r)!=length(n)){
     stop("Length of r and n not equal!")
   }
