@@ -133,7 +133,8 @@ contained in a list with two matrices (Only included if requested with \code{inc
 A very fast algorithm for computing stratified permutation-based split-half reliability.
 }
 \details{
-The order of operations (with optional steps between brackets) is:
+\code{\link[=rapidsplit]{rapidsplit()}} computes split-half reliability using the following sequence of operations
+(with optional steps between brackets):
 \itemize{
 \item Splitting
 \item (Replacing error trials within block within split)

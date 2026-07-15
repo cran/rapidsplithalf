@@ -65,7 +65,8 @@
 #' after splitting, or you can process your data before splitting and forgo these two options.
 #' 
 #' @details
-#' The order of operations (with optional steps between brackets) is: 
+#' [rapidsplit()] computes split-half reliability using the following sequence of operations
+#' (with optional steps between brackets): 
 #' * Splitting
 #' * (Replacing error trials within block within split)
 #' * Computing aggregates per condition (per subscore) per person

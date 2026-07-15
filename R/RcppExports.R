@@ -114,6 +114,30 @@ corStatsByColumns <- function(x, y) {
     .Call('_rapidsplithalf_corStatsByColumns', PACKAGE = 'rapidsplithalf', x, y)
 }
 
+loo_sum <- function(x) {
+    .Call('_rapidsplithalf_loo_sum', PACKAGE = 'rapidsplithalf', x)
+}
+
+loo_mean <- function(x) {
+    .Call('_rapidsplithalf_loo_mean', PACKAGE = 'rapidsplithalf', x)
+}
+
+loo_var <- function(x) {
+    .Call('_rapidsplithalf_loo_var', PACKAGE = 'rapidsplithalf', x)
+}
+
+loo_cov <- function(x, y) {
+    .Call('_rapidsplithalf_loo_cov', PACKAGE = 'rapidsplithalf', x, y)
+}
+
+loo_cor <- function(x, y) {
+    .Call('_rapidsplithalf_loo_cor', PACKAGE = 'rapidsplithalf', x, y)
+}
+
+looCorStatsByColumns <- function(x, y) {
+    .Call('_rapidsplithalf_looCorStatsByColumns', PACKAGE = 'rapidsplithalf', x, y)
+}
+
 #' Fast matrix column aggregators
 #' @name colAggregators
 #' 

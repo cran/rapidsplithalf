@@ -71,6 +71,75 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// loo_sum
+NumericVector loo_sum(NumericVector x);
+RcppExport SEXP _rapidsplithalf_loo_sum(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(loo_sum(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// loo_mean
+NumericVector loo_mean(NumericVector x);
+RcppExport SEXP _rapidsplithalf_loo_mean(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(loo_mean(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// loo_var
+NumericVector loo_var(NumericVector x);
+RcppExport SEXP _rapidsplithalf_loo_var(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(loo_var(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// loo_cov
+NumericVector loo_cov(NumericVector x, NumericVector y);
+RcppExport SEXP _rapidsplithalf_loo_cov(SEXP xSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(loo_cov(x, y));
+    return rcpp_result_gen;
+END_RCPP
+}
+// loo_cor
+NumericVector loo_cor(NumericVector x, NumericVector y);
+RcppExport SEXP _rapidsplithalf_loo_cor(SEXP xSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(loo_cor(x, y));
+    return rcpp_result_gen;
+END_RCPP
+}
+// looCorStatsByColumns
+List looCorStatsByColumns(NumericMatrix x, NumericMatrix y);
+RcppExport SEXP _rapidsplithalf_looCorStatsByColumns(SEXP xSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(looCorStatsByColumns(x, y));
+    return rcpp_result_gen;
+END_RCPP
+}
 // colMedians
 NumericVector colMedians(NumericMatrix x);
 RcppExport SEXP _rapidsplithalf_colMedians(SEXP xSEXP) {
@@ -271,6 +340,12 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rapidsplithalf_corByColumns", (DL_FUNC) &_rapidsplithalf_corByColumns, 2},
     {"_rapidsplithalf_corByColumns_mask", (DL_FUNC) &_rapidsplithalf_corByColumns_mask, 3},
     {"_rapidsplithalf_corStatsByColumns", (DL_FUNC) &_rapidsplithalf_corStatsByColumns, 2},
+    {"_rapidsplithalf_loo_sum", (DL_FUNC) &_rapidsplithalf_loo_sum, 1},
+    {"_rapidsplithalf_loo_mean", (DL_FUNC) &_rapidsplithalf_loo_mean, 1},
+    {"_rapidsplithalf_loo_var", (DL_FUNC) &_rapidsplithalf_loo_var, 1},
+    {"_rapidsplithalf_loo_cov", (DL_FUNC) &_rapidsplithalf_loo_cov, 2},
+    {"_rapidsplithalf_loo_cor", (DL_FUNC) &_rapidsplithalf_loo_cor, 2},
+    {"_rapidsplithalf_looCorStatsByColumns", (DL_FUNC) &_rapidsplithalf_looCorStatsByColumns, 2},
     {"_rapidsplithalf_colMedians", (DL_FUNC) &_rapidsplithalf_colMedians, 1},
     {"_rapidsplithalf_colProds", (DL_FUNC) &_rapidsplithalf_colProds, 1},
     {"_rapidsplithalf_colSds", (DL_FUNC) &_rapidsplithalf_colSds, 1},

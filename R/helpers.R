@@ -124,11 +124,11 @@ datachecker<-function(data,subjvar,diffvars,stratvars,subscorevar,aggvar,
     subscoresubvalues<-countOccur(condpairs[,c(subjvar,subscorevar),drop=FALSE])
     smallsubscores<-subscoresubvalues$Count!=2^length(diffvars)
     if(any(smallsubscores)){
-      stop("Some participants do not have data for all specified conditions within subscores: ",
+      stop("Some participants do not have data for all specified pairs of diffvars within subscores: ",
            paste0("participant ",
                   subscoresubvalues[[subjvar]][smallsubscores],
                   " within subscore ",
-                  subscoresubvalues[[subscorevar]][smallsubscores],
+                  subscoresubvalues[[subjvar]][smallsubscores],
                   collapse=", "))
     }
     
@@ -165,15 +165,11 @@ datachecker<-function(data,subjvar,diffvars,stratvars,subscorevar,aggvar,
     }
   }else{
     condpairs<-funique(data[,c(subjvar,diffvars),drop=FALSE])
-    subscoresubvalues<-countOccur(condpairs[[subjvar]])
-    smallsubscores<-subscoresubvalues$Count!=2L^length(diffvars)
-    if(any(smallsubscores)){
-      stop("Some participants do not have data for all specified conditions: ",
-           paste0("participant ",
-                  subscoresubvalues[[subjvar]][smallsubscores],
-                  " within subscore ",
-                  subscoresubvalues[[subscorevar]][smallsubscores],
-                  collapse=", "))
+    condcounts<-countOccur(condpairs[[subjvar]])
+    smallcondcounts<-condcounts$Count!=2L^length(diffvars)
+    if(sum(smallcondcounts)>0){
+      stop("Some participants do not have data for all specified pairs of diffvars: ",
+           paste0("participant ",condcounts$Variable[smallcondcounts]))
     }
     
     condcounts<-countOccur(data[,c(subjvar,diffvars),drop=FALSE])
